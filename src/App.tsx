@@ -24,7 +24,6 @@ function App() {
         if (file) {
             const result = await worker?.recognize(file, undefined, {
                 blocks: true,
-                hocr: true,
             });
             setImage(URL.createObjectURL(file));
             setResult(result?.data);
