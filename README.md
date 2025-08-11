@@ -29,4 +29,14 @@ height: word.bbox.y1 - word.bbox.y0
 
 You can adjust font size, line height etc. to make your words look better.
 
-Step4: Do subarray search of the search term(string to array split by space) on the flattened array of word objects. You may find a more efficient way than my solution. Highlight the words found.
+Step4: Do subarray search of the search term(string to array split by space) on the flattened array of word objects. Highlight the words found by conditionally set CSS background.
+
+### Some final thoughts
+
+1. You may find a more efficient way than my solution to do subarray search.
+2. I found it challenging to align the text perfectly.
+
+    - No font information
+    - The `bbox` boundaries match the original text boundaries without tolerance for the ascender/decender of the letters.
+
+    If you have better luch, with Tesseract or with something else, let me know!
