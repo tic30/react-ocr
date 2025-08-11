@@ -27,6 +27,6 @@ width: word.bbox.x1 - word.bbox.x0,
 height: word.bbox.y1 - word.bbox.y0
 ```
 
-You can adjust font size, line height etc. to make your word look better.
+You can adjust font size, line height etc. to make your words look better.
 
-Step4: Do subarray search of the search term(string to array split by space) on the flattened array of word objects. You may be able to find more efficient ways then my solution. Highlight the words found.
+Step4: Do subarray search of the search term(string to array split by space) on the flattened array of word objects. You may find a more efficient way than my solution. Highlight the words found.
