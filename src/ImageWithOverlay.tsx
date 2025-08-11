@@ -1,6 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import debounce from 'lodash.debounce';
 
-const findSubarray = (mainArray: string[], subArray: string[]) => {
+type FindSubArrayParams = {
+    mainArray: string[];
+    subArray: string[];
+};
+
+const findSubarray = ({ mainArray, subArray }: FindSubArrayParams): number => {
     // If either array is empty or the subArray is longer than the mainArray, it's impossible to find a match.
     if (!mainArray || !subArray || subArray.length > mainArray.length) {
         return -1;
@@ -36,6 +42,7 @@ export default function ImageWithOverlay({
     data: Tesseract.RecognizeResult['data'];
 }) {
     const [highlightInput, setHighlightInput] = useState('');
+    const [highlightedWordsStartingIndex, setHighlightedWordsStartingIndex] = useState(-1);
     // flatten the data
     const flattenedData = useMemo(
         () =>
@@ -47,12 +54,27 @@ export default function ImageWithOverlay({
         [data],
     );
 
+    const debouncedFindSubarray = useCallback(
+        debounce((params: FindSubArrayParams) => {
+            const startIndex = findSubarray(params);
+            setHighlightedWordsStartingIndex(startIndex);
+        }, 500),
+        [],
+    );
+
     const highlightedWords = highlightInput.split(' ').filter(Boolean);
-    console.log(highlightedWords);
     const highlightedWordsLength = highlightedWords.length;
-    const highlightedWordsStartingIndex = useMemo(() => {
-        return findSubarray(flattenedData?.map((word) => word.text) ?? [], highlightedWords);
-    }, [flattenedData]);
+
+    useEffect(() => {
+        if (highlightedWords.length > 0) {
+            debouncedFindSubarray({
+                mainArray: flattenedData?.map((word) => word.text) ?? [],
+                subArray: highlightedWords,
+            });
+        } else {
+            setHighlightedWordsStartingIndex(-1);
+        }
+    }, [debouncedFindSubarray, flattenedData, highlightInput]);
 
     return (
         <div>
@@ -76,6 +98,7 @@ export default function ImageWithOverlay({
                             highlightedWordsStartingIndex !== -1 &&
                             wordIndex >= highlightedWordsStartingIndex &&
                             wordIndex < highlightedWordsStartingIndex + highlightedWordsLength;
+                        const height = word.bbox.y1 - word.bbox.y0;
 
                         return (
                             <span
@@ -85,10 +108,13 @@ export default function ImageWithOverlay({
                                     top: word.bbox.y0,
                                     left: word.bbox.x0,
                                     width: word.bbox.x1 - word.bbox.x0,
-                                    height: word.bbox.y1 - word.bbox.y0,
+                                    height,
                                     backgroundColor: highlighted
                                         ? 'rgba(255, 249, 104, 0.8)'
                                         : 'rgba(189, 189, 189, 0.8)',
+                                    textAlign: 'start',
+                                    fontSize: `${height}px`,
+                                    lineHeight: `${height}px`,
                                 }}
                             >
                                 {word.text}
